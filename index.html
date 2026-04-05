@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistem Pendataan Peminjaman Sound System</title>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- QR Code Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/fontsource-inter@5.0.0/index.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <!-- Main App -->
+    <div id="mainApp">
+      <!-- Sidebar -->
+      <aside
+        id="sidebar"
+        class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-30 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 no-print"
+      >
+        <!-- Ganti bagian sidebar header dengan ini -->
+<div class="p-6 border-b border-white/10">
+  <div class="flex items-center gap-3">
+    <div class="relative">
+      <div class="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/25">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+        </svg>
+      </div>
+      <div class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-indigo-900 animate-pulse"></div>
+    </div>
+    <div>
+      <h2 class="font-bold text-white text-lg">Sound System</h2>
+      <p class="text-xs text-indigo-200/80">Management Pro</p>
+    </div>
+  </div>
+  
+  <!-- ✅ Admin Login Status -->
+  <div class="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span id="adminUserInfo" class="text-xs text-gray-400">Guest</span>
+      <span id="adminBadge" class="hidden px-1.5 py-0.5 bg-emerald-500 text-white text-[10px] rounded-full font-medium">ADMIN</span>
+    </div>
+    <button id="adminLoginBtn" onclick="toggleAdminAuth()" 
+            class="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20 text-white transition">
+      <span id="loginBtnText">Login</span>
+    </button>
+  </div>
+</div>
+        <nav class="p-4 space-y-1">
+          <a
+            onclick="navigateTo('dashboard')"
+            class="sidebar-link active flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 cursor-pointer transition"
+            data-page="dashboard"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+              />
+            </svg>
+            Dashboard
+          </a>
+          <a
+            onclick="navigateTo('form')"
+            class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 cursor-pointer transition"
+            data-page="form"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            Form Peminjaman
+          </a>
+          <a
+            onclick="navigateTo('approval')"
+            class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 cursor-pointer transition"
+            data-page="approval"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+              />
+            </svg>
+            Approval
+            <span
+              id="approvalBadge"
+              class="hidden ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full"
+              >0</span
+            >
+          </a>
+          <a
+            onclick="navigateTo('list')"
+            class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 cursor-pointer transition"
+            data-page="list"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 10h16M4 14h16M4 18h16"
+              />
+            </svg>
+            Data Peminjaman
+          </a>
+          <a
+            onclick="navigateTo('inventory')"
+            class="sidebar-link flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 cursor-pointer transition"
+            data-page="inventory"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+              />
+            </svg>
+            Inventaris
+          </a>
+        </nav>
+      </aside>
+
+      <!-- Sidebar Overlay -->
+      <div
+        id="sidebarOverlay"
+        class="fixed inset-0 bg-black/30 z-20 hidden lg:hidden"
+        onclick="toggleSidebar()"
+      ></div>
+
+      <!-- Main Content -->
+      <main class="lg:ml-64 min-h-screen">
+        <!-- Top Bar -->
+        <!-- Top Bar -->
+        <header class="bg-white shadow-sm sticky top-0 z-10 no-print">
+          <div class="flex items-center justify-between px-4 lg:px-8 py-4">
+            <div class="flex items-center gap-4">
+              <button
+                onclick="toggleSidebar()"
+                class="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+              >
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              </button>
+              <h2 id="pageTitle" class="text-xl font-bold text-gray-800">
+                Dashboard
+              </h2>
+            </div>
+
+            <!-- ✅ RIGHT SIDE: Date + Sync Button -->
+            <div class="flex items-center gap-3">
+              <span
+                id="currentDate"
+                class="text-sm text-gray-500 hidden sm:block"
+              ></span>
+
+              <!-- 🔄 Sync from Google Sheets Button -->
+              <button
+                onclick="handleSyncFromSheets()"
+                class="px-3 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 transition flex items-center gap-1.5 no-print"
+                title="Sinkronisasi data dari Google Sheets"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+                <span class="hidden sm:inline">Sync</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <div class="p-4 lg:p-8">
+          <!-- Dashboard Page -->
+          <div id="page-dashboard" class="page-content fade-in">
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8"
+            >
+              <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-gray-500">Total Peminjaman</p>
+                    <p
+                      id="statTotal"
+                      class="text-3xl font-bold text-gray-800 mt-1"
+                    >
+                      0
+                    </p>
+                  </div>
+                  <div
+                    class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center"
+                  >
+                    <svg
+                      class="w-6 h-6 text-indigo-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-gray-500">Menunggu Approval</p>
+                    <p
+                      id="statPending"
+                      class="text-3xl font-bold text-amber-600 mt-1"
+                    >
+                      0
+                    </p>
+                  </div>
+                  <div
+                    class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center"
+                  >
+                    <svg
+                      class="w-6 h-6 text-amber-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-gray-500">Disetujui</p>
+                    <p
+                      id="statApproved"
+                      class="text-3xl font-bold text-emerald-600 mt-1"
+                    >
+                      0
+                    </p>
+                  </div>
+                  <div
+                    class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center"
+                  >
+                    <svg
+                      class="w-6 h-6 text-emerald-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-gray-500">Sudah Dikembalikan</p>
+                    <p
+                      id="statReturned"
+                      class="text-3xl font-bold text-blue-600 mt-1"
+                    >
+                      0
+                    </p>
+                  </div>
+                  <div
+                    class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center"
+                  >
+                    <svg
+                      class="w-6 h-6 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Bookings -->
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div
+                class="px-6 py-4 border-b border-gray-100 flex items-center justify-between"
+              >
+                <h3 class="font-semibold text-gray-800">Peminjaman Terbaru</h3>
+                <button
+                  onclick="navigateTo('list')"
+                  class="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                >
+                  Lihat Semua →
+                </button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase"
+                      >
+                        ID
+                      </th>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase"
+                      >
+                        Peminjam
+                      </th>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase"
+                      >
+                        Keperluan
+                      </th>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase"
+                      >
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody id="recentBookings"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Peminjaman Page -->
+          <div id="page-form" class="page-content hidden fade-in">
+            <div class="max-w-3xl mx-auto">
+              <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div
+                  class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50"
+                >
+                  <h3 class="font-semibold text-gray-800 text-lg">
+                    Form Peminjaman Sound System
+                  </h3>
+                  <p class="text-sm text-gray-500 mt-1">
+                    Isi data peminjaman dengan lengkap dan benar
+                  </p>
+                </div>
+                <form
+                  id="bookingForm"
+                  onsubmit="submitBooking(event)"
+                  class="p-6 space-y-6"
+                >
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >Nama Peminjam
+                        <span class="text-red-500">*</span></label
+                      >
+                      <input
+                        type="text"
+                        id="borrowerName"
+                        required
+                        placeholder="Nama lengkap"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >NIM / NIP / ID
+                        <span class="text-red-500">*</span></label
+                      >
+                      <input
+                        type="text"
+                        id="borrowerId"
+                        required
+                        placeholder="Nomor identitas"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                      />
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >No. Telepon <span class="text-red-500">*</span></label
+                      >
+                      <input
+                        type="tel"
+                        id="borrowerPhone"
+                        required
+                        placeholder="08xxxxxxxxxx"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >Unit / Instansi
+                        <span class="text-red-500">*</span></label
+                      >
+                      <input
+                        type="text"
+                        id="borrowerUnit"
+                        required
+                        placeholder="Unit / Organisasi / Instansi"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                      >Keperluan <span class="text-red-500">*</span></label
+                    >
+                    <textarea
+                      id="purpose"
+                      required
+                      rows="3"
+                      placeholder="Jelaskan keperluan peminjaman..."
+                      class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition resize-none"
+                    ></textarea>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >Tanggal Pinjam
+                        <span class="text-red-500">*</span></label
+                      >
+                      <input
+                        type="date"
+                        id="borrowDate"
+                        required
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                      />
+                    </div>
+                    <div>
+                      <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >Tanggal Kembali
+                        <span class="text-red-500">*</span></label
+                      >
+                      <input
+                        type="date"
+                        id="returnDate"
+                        required
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"
+                      >Pilih Peralatan Sound System
+                      <span class="text-red-500">*</span></label
+                    >
+                    <div
+                      id="equipmentList"
+                      class="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                    ></div>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                      >Catatan Tambahan</label
+                    >
+                    <textarea
+                      id="notes"
+                      rows="2"
+                      placeholder="Catatan tambahan (opsional)"
+                      class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition resize-none"
+                    ></textarea>
+                  </div>
+                  <div class="flex gap-3 pt-2">
+                    <button
+                      type="submit"
+                      class="flex-1 bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
+                      </svg>
+                      Ajukan Peminjaman
+                    </button>
+                    <button
+                      type="reset"
+                      onclick="resetForm()"
+                      class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Approval Page -->
+          <div id="page-approval" class="page-content hidden fade-in">
+            <div class="space-y-4">
+              <div
+                class="bg-white rounded-xl shadow-sm p-4 flex flex-wrap items-center gap-4"
+              >
+                <div class="flex items-center gap-2">
+                  <span
+                    class="w-3 h-3 rounded-full bg-amber-400 pulse-dot"
+                  ></span>
+                  <span class="text-sm text-gray-600"
+                    >Menunggu: <strong id="pendingCount">0</strong></span
+                  >
+                </div>
+              </div>
+              <div id="approvalList" class="space-y-4"></div>
+              <div
+                id="noPending"
+                class="bg-white rounded-xl shadow-sm p-12 text-center hidden"
+              >
+                <div
+                  class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                >
+                  <svg
+                    class="w-8 h-8 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <h3 class="font-semibold text-gray-800 text-lg">
+                  Tidak Ada Peminjaman Pending
+                </h3>
+                <p class="text-gray-500 mt-1">
+                  Semua peminjaman telah diproses
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Peminjaman Page -->
+          <div id="page-list" class="page-content hidden fade-in">
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div
+                class="px-6 py-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4"
+              >
+                <h3 class="font-semibold text-gray-800">Data Peminjaman</h3>
+                <div class="flex flex-wrap items-center gap-3">
+                  <div class="relative">
+                    <input
+                      type="text"
+                      id="searchInput"
+                      oninput="renderBookingsList()"
+                      placeholder="Cari peminjaman..."
+                      class="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none w-48"
+                    />
+                    <svg
+                      class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                  </div>
+                  <select
+                    id="filterStatus"
+                    onchange="renderBookingsList()"
+                    class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                  >
+                    <option value="all">Semua Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Disetujui</option>
+                    <option value="rejected">Ditolak</option>
+                    <option value="returned">Dikembalikan</option>
+                  </select>
+                </div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th
+                        class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase"
+                      >
+                        Barcode
+                      </th>
+                      <th
+                        class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase"
+                      >
+                        Peminjam
+                      </th>
+                      <th
+                        class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase hidden md:table-cell"
+                      >
+                        Tanggal
+                      </th>
+                      <th
+                        class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase hidden lg:table-cell"
+                      >
+                        Peralatan
+                      </th>
+                      <th
+                        class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase"
+                      >
+                        Status
+                      </th>
+                      <th
+                        class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase"
+                      >
+                        Aksi
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody id="bookingsTableBody"></tbody>
+                </table>
+              </div>
+              <div id="emptyBookings" class="p-12 text-center hidden">
+                <div
+                  class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                >
+                  <svg
+                    class="w-8 h-8 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                    />
+                  </svg>
+                </div>
+                <p class="text-gray-500">Belum ada data peminjaman</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inventory Page -->
+          <!-- Inventory Page -->
+          <div id="page-inventory" class="page-content hidden fade-in">
+            <!-- ✅ Header TANPA Refresh Button -->
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+              <h3 class="font-semibold text-gray-800 text-lg">
+                Inventaris Sound System
+              </h3>
+              <button
+                onclick="showAddEquipment()"
+                class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition flex items-center gap-2"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  />
+                </svg>
+                Tambah Alat
+              </button>
+            </div>
+
+            <!-- Inventory Grid Container -->
+            <div
+              id="inventoryGrid"
+              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            >
+              <!-- Content will be rendered by renderInventory() -->
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Detail Modal -->
+    <div
+      id="detailModal"
+      class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-overlay bg-black/50"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto slide-in"
+      >
+        <div id="modalContent"></div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div
+      id="toastContainer"
+      class="fixed top-4 right-4 z-[100] space-y-2"
+    ></div>
+
+    <!-- Admin Login Modal -->
+<div id="loginModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 modal-overlay bg-black/60">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md slide-in">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+      <h3 class="font-semibold text-gray-800 text-lg">🔐 Login Admin</h3>
+      <button onclick="closeLoginModal()" class="p-1 hover:bg-gray-100 rounded-lg">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Form -->
+    <form onsubmit="handleAdminLogin(event)" class="p-6 space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+        <input type="text" id="adminUsername" required 
+               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+               placeholder="Masukkan username">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <input type="password" id="adminPassword" required 
+               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+               placeholder="Masukkan password">
+      </div>
+      
+      <div id="loginError" class="text-red-500 text-sm hidden"></div>
+      
+      <button type="submit" 
+              class="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+        </svg>
+        Login
+      </button>
+    </form>
+    
+    <!-- Footer -->
+    <div class="px-6 pb-6 text-center text-xs text-gray-400">
+      <p>Hanya untuk admin terdaftar</p>
+    </div>
+  </div>
+</div>
+
+    <!-- JavaScript Modules (Load in Order) -->
+    <!-- 1. Config & Utils (Dependencies First) -->
+    <script src="js/config.js"></script>
+
+    <!-- 2. Feature Modules -->
+    <script src="js/modal.js"></script>
+    <script src="js/print.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/form.js"></script>
+    <script src="js/approval.js"></script>
+    <script src="js/list.js"></script>
+    <script src="js/inventory.js"></script>
+
+    <!-- 3. Main Entry Point (Last) -->
+    <script src="js/main.js"></script>
+  </body>
+</html>
