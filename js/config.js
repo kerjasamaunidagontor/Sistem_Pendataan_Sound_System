@@ -161,27 +161,82 @@ window.syncFromSheets = async function () {
   }
 };
 
-window.getBookings = async function (syncFromSheets = false) {
-  if (syncFromSheets) return await window.syncFromSheets();
-  return useLocalStorage().getBookings();
+/**
+ * Get bookings DIRECTLY from Google Sheets (NO localStorage)
+ */
+window.getBookings = async function () {
+  try {
+    console.log('📡 Fetching bookings from Google Sheets...');
+    
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ action: 'getBookings' })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    const bookings = result.bookings || [];
+    
+    console.log(`✅ Loaded ${bookings.length} bookings from Google Sheets`);
+    console.log('📦 Bookings data:', bookings);
+    
+    return bookings;
+    
+  } catch (e) {
+    console.error('❌ Failed to fetch bookings:', e);
+    showToast('Gagal memuat data dari Google Sheets', 'error');
+    
+    // Fallback to localStorage only if API fails
+    console.warn('⚠️ Falling back to localStorage');
+    return useLocalStorage().getBookings();
+  }
 };
 
+/**
+ * Save booking - langsung ke Google Sheets
+ */
 window.saveBooking = async function (booking) {
-  const local = useLocalStorage();
-  const bookings = local.getBookings();
-  const idx = bookings.findIndex((b) => b.id === booking.id);
-  
-  if (idx >= 0) bookings[idx] = { ...bookings[idx], ...booking };
-  else bookings.push(booking);
-  local.saveBookings(bookings);
-
-  if (navigator.onLine) {
-    apiFetch("createBooking", "POST", { data: booking })
-      .then(() => console.log("✅ Booking sent to Sheets:", booking.id))
-      .catch((e) => console.warn("⚠️ Sheets sync failed:", e.message));
+  try {
+    console.log('💾 Saving booking to Google Sheets:', booking.id);
+    
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ 
+        action: 'createBooking', 
+        data: booking 
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    console.log('✅ Booking saved to Sheets:', result);
+    
+    return { success: true, message: '✅ Peminjaman berhasil diajukan!' };
+    
+  } catch (e) {
+    console.error('❌ Failed to save booking:', e);
+    
+    // Fallback: Save to localStorage
+    const local = useLocalStorage();
+    const bookings = local.getBookings();
+    bookings.push(booking);
+    local.saveBookings(bookings);
+    
+    console.warn('⚠️ Saved to localStorage as fallback');
+    return { 
+      success: true, 
+      local: true, 
+      message: '⚠️ Offline mode: Data disimpan lokal' 
+    };
   }
-
-  return { success: true, local: true, message: "Saved locally + syncing to Sheets" };
 };
 
 window.updateBooking = async function (booking) {
