@@ -571,6 +571,13 @@
                     >
                       Reset
                     </button>
+                    <!-- ✅ TAMBAHKAN BUTTON SHARE FORM -->
+  <button type="button" onclick="showShareFormModal()" class="px-4 py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition flex items-center gap-2" title="Bagikan Form via QR Code">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+    </svg>
+    <span class="hidden sm:inline">Share</span>
+  </button>
                   </div>
                 </form>
               </div>
@@ -730,42 +737,29 @@
           </div>
 
           <!-- Inventory Page -->
-          <!-- Inventory Page -->
-          <div id="page-inventory" class="page-content hidden fade-in">
-            <!-- ✅ Header TANPA Refresh Button -->
-            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-              <h3 class="font-semibold text-gray-800 text-lg">
-                Inventaris Sound System
-              </h3>
-              <button
-                onclick="showAddEquipment()"
-                class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition flex items-center gap-2"
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
-                Tambah Alat
-              </button>
-            </div>
+<div id="page-inventory" class="page-content hidden fade-in">
+  <!-- ✅ Header dengan Button yang Conditional -->
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <h3 class="font-semibold text-gray-800 text-lg">Inventaris Sound System</h3>
+    
+    <!-- ✅ TAMBAHKAN ID DAN CEK ADMIN -->
+    <button
+      id="btnTambahAlat"
+      onclick="showAddEquipment()"
+      class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition flex items-center gap-2 ${typeof isAdminLoggedIn === 'function' && isAdminLoggedIn() ? '' : 'hidden'}"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+      </svg>
+      Tambah Alat
+    </button>
+  </div>
 
-            <!-- Inventory Grid Container -->
-            <div
-              id="inventoryGrid"
-              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-            >
-              <!-- Content will be rendered by renderInventory() -->
-            </div>
-          </div>
+  <!-- Inventory Grid Container -->
+  <div id="inventoryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <!-- Content will be rendered by renderInventory() -->
+  </div>
+</div>
         </div>
       </main>
     </div>
@@ -830,6 +824,66 @@
     <!-- Footer -->
     <div class="px-6 pb-6 text-center text-xs text-gray-400">
       <p>Hanya untuk admin terdaftar</p>
+    </div>
+  </div>
+</div>
+<!-- Share Form QR Modal -->
+<div id="shareFormModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 modal-overlay bg-black/60">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md slide-in">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+      <h3 class="font-semibold text-gray-800 text-lg">📱 Bagikan Form Peminjaman</h3>
+      <button onclick="closeShareFormModal()" class="p-1 hover:bg-gray-100 rounded-lg">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Content -->
+    <div class="p-6 space-y-4">
+      <!-- QR Code Container -->
+      <div class="flex justify-center">
+        <div id="shareFormQR" class="bg-white p-4 rounded-xl border-2 border-gray-200"></div>
+      </div>
+      
+      <!-- URL Preview -->
+      <div class="bg-gray-50 rounded-lg p-3">
+        <p class="text-xs text-gray-500 mb-1">Link Form:</p>
+        <p id="shareFormURL" class="text-sm text-indigo-600 font-mono break-all"></p>
+      </div>
+      
+      <!-- Options -->
+      <div class="space-y-2">
+        <label class="flex items-center gap-2 text-sm">
+          <input type="checkbox" id="prefillUnit" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+          <span>Pre-fill Unit/Instansi saya</span>
+        </label>
+        <label class="flex items-center gap-2 text-sm">
+          <input type="checkbox" id="prefillContact" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+          <span>Pre-fill Kontak saya</span>
+        </label>
+      </div>
+      
+      <!-- Instructions -->
+      <div class="text-xs text-gray-500 bg-blue-50 rounded-lg p-3">
+        <p class="font-medium text-blue-700 mb-1">📋 Cara Pakai:</p>
+        <ol class="list-decimal list-inside space-y-1">
+          <li>Scan QR code dengan kamera</li>
+          <li>Form akan terbuka otomatis</li>
+          <li>Isi data dan submit peminjaman</li>
+        </ol>
+      </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="px-6 pb-6 flex gap-3">
+      <button onclick="copyShareLink()" class="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-lg font-medium hover:bg-gray-200 transition">
+        📋 Copy Link
+      </button>
+      <button onclick="closeShareFormModal()" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition">
+        Tutup
+      </button>
     </div>
   </div>
 </div>
