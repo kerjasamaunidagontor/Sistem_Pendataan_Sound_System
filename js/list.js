@@ -5,7 +5,6 @@
  */
 
 // ==================== RENDER BOOKINGS LIST (ASYNC) ====================
-// ==================== RENDER BOOKINGS LIST (ASYNC + Admin Check) ====================
 window.renderBookingsList = async function () {
   try {
     // ✅ Check admin access first
@@ -35,13 +34,20 @@ window.renderBookingsList = async function () {
       return;
     }
     
-    // ✅ Admin logged in - proceed with normal render
+    // ✅ Admin logged in - fetch from Google Sheets
+    console.log('🔄 Fetching bookings for render...');
     let bookings = await getBookings();
+    
+    // Debug log
+    console.log(`📊 Total bookings fetched: ${bookings.length}`);
+    console.log('📦 Bookings data:', bookings);
+    
     const search = (document.getElementById("searchInput")?.value || "").toLowerCase();
     const filter = document.getElementById("filterStatus")?.value || "all";
 
     // Filter pencarian
     if (search) {
+      const beforeFilter = bookings.length;
       bookings = bookings.filter(
         (b) =>
           b.id.toLowerCase().includes(search) ||
@@ -49,14 +55,19 @@ window.renderBookingsList = async function () {
           b.purpose.toLowerCase().includes(search) ||
           b.borrowerUnit.toLowerCase().includes(search),
       );
+      console.log(`🔍 Search filter: ${beforeFilter} → ${bookings.length} results`);
     }
 
     // Filter status
     if (filter !== "all") {
+      const beforeFilter = bookings.length;
       bookings = bookings.filter((b) => b.status === filter);
+      console.log(`🎯 Status filter (${filter}): ${beforeFilter} → ${bookings.length} results`);
     }
 
+    // Reverse to show newest first
     bookings = bookings.reverse();
+    console.log(`📋 Rendering ${bookings.length} bookings to table`);
 
     const tbody = document.getElementById("bookingsTableBody");
     const empty = document.getElementById("emptyBookings");
@@ -64,6 +75,7 @@ window.renderBookingsList = async function () {
     if (bookings.length === 0) {
       if (tbody) tbody.innerHTML = "";
       if (empty) empty.classList.remove("hidden");
+      console.log('⚠️ No bookings to display');
       return;
     }
     if (empty) empty.classList.add("hidden");
